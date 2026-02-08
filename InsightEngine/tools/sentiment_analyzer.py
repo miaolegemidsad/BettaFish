@@ -528,34 +528,39 @@ class WeiboMultilingualSentimentAnalyzer:
                 }
             }
 
+        # ===== 心态分析：无论情感模型是否可用都执行 =====
+        print(f"正在对{len(texts_to_analyze)}条内容进行心态分析...")
+        mental_state_results = self.analyze_mental_state_batch(texts_to_analyze)
+        mental_state_distribution: Dict[str, int] = {}
+        for result in mental_state_results:
+            if result.get("success", False):
+                state = result.get("mental_state", "未知")
+                mental_state_distribution[state] = mental_state_distribution.get(state, 0) + 1
+        # ===== 心态分析结束 =====
+
         if self.is_disabled:
-            return self._build_passthrough_analysis(
+            response = self._build_passthrough_analysis(
                 original_data=original_data,
                 reason=self.disable_reason or "情感分析模型不可用",
                 texts=texts_to_analyze,
             )
+            response["sentiment_analysis"]["mental_state_analysis"] = {
+                "total_analyzed": len(mental_state_results),
+                "success_count": sum(1 for r in mental_state_results if r.get("success", False)),
+                "mental_state_distribution": mental_state_distribution,
+                "results_sample": mental_state_results[:3]
+            }
+            return response
 
-        # 执行批量情感分析
+        # 执行批量情感分析（模型可用时）
         print(f"正在对{len(texts_to_analyze)}条内容进行情感分析...")
         batch_result = self.analyze_batch(texts_to_analyze, show_progress=True)
-        # ===== 【新增：执行心态分析】=====
-        print(f"正在对{len(texts_to_analyze)}条内容进行心态分析...")
-        mental_state_results = self.analyze_mental_state_batch(texts_to_analyze)
-        
-        # 统计心态分布
-        mental_state_distribution = {}
-        for result in mental_state_results:
-            if result.get("success", False):
-                state = result.get("mental_state", "未知")
-                if state not in mental_state_distribution:
-                    mental_state_distribution[state] = 0
-                mental_state_distribution[state] += 1
-        # ===== 【新增结束】=====
         if not batch_result.analysis_performed:
             reason = self.disable_reason or "情感分析功能不可用"
             if batch_result.results:
                 candidate_error = next(
                     (r.error_message for r in batch_result.results if r.error_message),
+                    None,
                     None,
                 )
                 if candidate_error:
@@ -608,14 +613,14 @@ class WeiboMultilingualSentimentAnalyzer:
                 "sentiment_distribution": sentiment_distribution,
                 "high_confidence_results": high_confidence_results,  # 返回所有高置信度结果，不做限制
                 "summary": sentiment_summary,
-                 # ===== 【新增：加入心态分析结果】=====
+                # ===== 心态分析结果 =====
                 "mental_state_analysis": {
                     "total_analyzed": len(mental_state_results),
                     "success_count": sum(1 for r in mental_state_results if r.get("success", False)),
                     "mental_state_distribution": mental_state_distribution,
                     "results_sample": mental_state_results[:3]  # 显示前3条结果作为示例
                 }
-                 # ===== 【新增结束】=====
+                # ===== 心态分析结束 =====
             }
         }
     # ===== 【新增：心态分析方法】=====
