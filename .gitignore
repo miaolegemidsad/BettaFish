@@ -276,6 +276,11 @@ docs/.vitepress/cache
 # *.log
 logs/
 # */logs/
+db_data/
+*.log
+.env
+__pycache__/
+
 
 # 临时文件
 temp/
