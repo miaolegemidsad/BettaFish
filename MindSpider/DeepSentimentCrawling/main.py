@@ -30,7 +30,7 @@ class DeepSentimentCrawling:
     def run_daily_crawling(self, target_date: date = None, platforms: List[str] = None, 
                           max_keywords_per_platform: int = 50, 
                           max_notes_per_platform: int = 50,
-                          login_type: str = "qrcode") -> Dict:
+                          login_type: str = "cookie") -> Dict:
         """
         执行每日爬取任务
         
@@ -98,7 +98,7 @@ class DeepSentimentCrawling:
     
     def run_platform_crawling(self, platform: str, target_date: date = None,
                              max_keywords: int = 50, max_notes: int = 50,
-                             login_type: str = "qrcode") -> Dict:
+                             login_type: str = "cookie") -> Dict:
         """
         执行单个平台的爬取任务
         
@@ -205,7 +205,7 @@ def main():
     parser.add_argument("--max-notes", type=int, default=50,
                        help="每个平台最大爬取内容数量 (默认: 50)")
     parser.add_argument("--login-type", type=str, choices=['qrcode', 'phone', 'cookie'], 
-                       default='qrcode', help="登录方式 (默认: qrcode)")
+                       default='cookie', help="登录方式 (默认: cookie)")
     
     # 功能参数
     parser.add_argument("--list-topics", action="store_true", help="列出最近的话题数据")

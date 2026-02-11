@@ -201,7 +201,7 @@ postgresql_db_config = {{
             return False
     
     def run_crawler(self, platform: str, keywords: List[str], 
-                   login_type: str = "qrcode", max_notes: int = 50) -> Dict:
+                   login_type: str = "cookie", max_notes: int = 50) -> Dict:
         """
         运行爬虫
         
@@ -331,7 +331,7 @@ postgresql_db_config = {{
         return stats
     
     def run_multi_platform_crawl_by_keywords(self, keywords: List[str], platforms: List[str],
-                                            login_type: str = "qrcode", max_notes_per_keyword: int = 50) -> Dict:
+                                            login_type: str = "cookie", max_notes_per_keyword: int = 50) -> Dict:
         """
         基于关键词的多平台爬取 - 每个关键词在所有平台上都进行爬取
         
